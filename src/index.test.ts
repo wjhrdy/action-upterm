@@ -63,6 +63,7 @@ describe('upterm GitHub integration', () => {
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
@@ -89,6 +90,7 @@ describe('upterm GitHub integration', () => {
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
@@ -115,6 +117,7 @@ describe('upterm GitHub integration', () => {
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
@@ -141,6 +144,7 @@ describe('upterm GitHub integration', () => {
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
@@ -167,6 +171,7 @@ describe('upterm GitHub integration', () => {
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
@@ -185,6 +190,7 @@ describe('upterm GitHub integration', () => {
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
@@ -193,19 +199,26 @@ describe('upterm GitHub integration', () => {
     expect(core.setFailed).toHaveBeenCalledWith('Failed to install dependencies on win32: Error: Unsupported architecture for upterm: unknown. Only x64 and arm64 are supported.');
   });
 
-  it('should install using brew on macos', async () => {
+  it('should install using tarball on macos', async () => {
     Object.defineProperty(process, 'platform', {
       value: 'darwin'
+    });
+    Object.defineProperty(process, 'arch', {
+      value: 'x64'
     });
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
     await run();
 
-    expect(mockedExecShellCommand).toHaveBeenNthCalledWith(1, 'brew install owenthereal/upterm/upterm tmux');
+    expect(mockedToolCache.downloadTool).toHaveBeenCalledWith('https://github.com/owenthereal/upterm/releases/latest/download/upterm_darwin_amd64.tar.gz');
+    expect(mockedToolCache.extractTar).toHaveBeenCalledWith(DOWNLOAD_PATH);
+    expect(core.addPath).toHaveBeenCalledWith(EXTRACT_DIR);
+    expect(mockedExecShellCommand).toHaveBeenNthCalledWith(1, 'if ! command -v tmux &>/dev/null; then brew install tmux; fi');
     expect(core.info).toHaveBeenNthCalledWith(1, 'Creating a new session. Connecting to upterm server ssh://myserver:22');
     expect(core.info).toHaveBeenNthCalledWith(2, 'Waiting for upterm to be ready... (1/10)');
     expect(core.info).toHaveBeenNthCalledWith(3, "Exiting debugging session because '/continue' file was created");
@@ -403,6 +416,7 @@ describe('upterm GitHub integration', () => {
     when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
     when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
     when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('');
     when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
 
     // Mock session status command to fail with connection refused
@@ -451,5 +465,62 @@ describe('upterm GitHub integration', () => {
     expect(mockedExecShellCommand).toHaveBeenCalledWith(expect.stringContaining('sleep $(( 10 * 60 ))'));
     expect(mockedExecShellCommand).toHaveBeenCalledWith(expect.stringContaining('echo "UPTERM_TIMEOUT_REACHED" > /tmp/upterm-timeout-flag'));
     expect(core.info).toHaveBeenCalledWith('wait-timeout-minutes set - will wait for 10 minutes for someone to connect, otherwise shut down');
+  });
+
+  it('should download specific version for linux x64', async () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'linux'
+    });
+    Object.defineProperty(process, 'arch', {
+      value: 'x64'
+    });
+    when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
+    when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
+    when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('v0.20.0');
+    when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
+
+    mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
+    await run();
+
+    expect(mockedToolCache.downloadTool).toHaveBeenCalledWith('https://github.com/owenthereal/upterm/releases/download/v0.20.0/upterm_linux_amd64.tar.gz');
+  });
+
+  it('should download specific version for windows x64', async () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32'
+    });
+    Object.defineProperty(process, 'arch', {
+      value: 'x64'
+    });
+    when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
+    when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
+    when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('v0.20.0');
+    when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
+
+    mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
+    await run();
+
+    expect(mockedToolCache.downloadTool).toHaveBeenCalledWith('https://github.com/owenthereal/upterm/releases/download/v0.20.0/upterm_windows_amd64.tar.gz');
+  });
+
+  it('should download specific version for macos arm64', async () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'darwin'
+    });
+    Object.defineProperty(process, 'arch', {
+      value: 'arm64'
+    });
+    when(core.getInput).calledWith('limit-access-to-users').mockReturnValue('');
+    when(core.getInput).calledWith('limit-access-to-actor').mockReturnValue('false');
+    when(core.getInput).calledWith('wait-timeout-minutes').mockReturnValue('');
+    when(core.getInput).calledWith('upterm-version').mockReturnValue('v0.20.0');
+    when(core.getInput).calledWith('upterm-server').mockReturnValue('ssh://myserver:22');
+
+    mockedExecShellCommand.mockReturnValue(Promise.resolve('foobar'));
+    await run();
+
+    expect(mockedToolCache.downloadTool).toHaveBeenCalledWith('https://github.com/owenthereal/upterm/releases/download/v0.20.0/upterm_darwin_arm64.tar.gz');
   });
 });

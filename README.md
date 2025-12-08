@@ -11,7 +11,20 @@ This GitHub Action enables direct interaction with the host system running your 
 
 - **Linux**
 - **macOS**
-- **Windows**: Unsupported (actions will skip to avoid pipeline failures).
+- **Windows**
+
+## Pinning Upterm Version
+
+By default, the action installs the latest version of Upterm. You can pin a specific version using the `upterm-version` input. This is useful for ensuring consistent behavior across runs.
+
+```yaml
+- name: Setup upterm session
+  uses: owenthereal/action-upterm@v1
+  with:
+    upterm-version: v0.20.0
+```
+
+**Note:** All platforms (Linux, macOS, Windows) install Upterm from GitHub release tarballs. Homebrew is no longer used for Upterm installation on macOS.
 
 ## Getting Started
 

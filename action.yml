@@ -24,3 +24,6 @@ inputs:
     description: "Integer number of minutes to wait for user to connect before shutting down server. Once a user connects, the server will stay up."
     required: false
     default: ""
+  upterm-version:
+    description: "Upterm version/tag to install, like v0.20.0; defaults to latest if not set"
+    required: false
